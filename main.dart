@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'sign_in.dart'; // Import SignInScreen
 
 void main() {
   runApp(const ParkingApp());
@@ -40,10 +41,10 @@ class UserSelectionScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 48),
-                Text(
+                const Text(
                   'WELCOME TO\nPARKSPOT',
                   textAlign: TextAlign.left,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w900,
                     fontSize: 40,
                     color: Colors.black,
@@ -52,10 +53,10 @@ class UserSelectionScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text(
+                const Text(
                   'Choose your role to access the right features',
                   textAlign: TextAlign.left,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w400,
                     color: Colors.grey,
@@ -72,7 +73,7 @@ class UserSelectionScreen extends StatelessWidget {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const Placeholder()),
+                      MaterialPageRoute(builder: (context) => SignInScreen()), // Redirect to SignInScreen
                     );
                   },
                 ),
@@ -85,7 +86,7 @@ class UserSelectionScreen extends StatelessWidget {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const Placeholder()),
+                      MaterialPageRoute(builder: (context) => SignInScreen()), // Redirect to SignInScreen
                     );
                   },
                 ),
