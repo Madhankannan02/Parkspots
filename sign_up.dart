@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'sign_in.dart'; // Import SignInScreen
+import 'owner_registration.dart'; // Correct Import: Assumes owner_registration.dart is in the same directory
 
 class SignUpScreen extends StatefulWidget {
   @override
@@ -30,7 +31,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   width: 43.95,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: Color(0xFFFAFAFA),
+                    color: const Color(0xFFFAFAFA),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
@@ -119,7 +120,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Handle sign up logic here
+                    // Navigate to the Owner Registration page.
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            OwnerRegistrationPage(), // Correct call
+                      ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -225,13 +233,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      // Navigate to SignInScreen without animation
+                      // Navigate to SignInScreen
                       Navigator.push(
                         context,
-                        PageRouteBuilder(
-                          pageBuilder: (context, animation1, animation2) => SignInScreen(),
-                          transitionDuration: Duration.zero, // Remove transition animation
-                        ),
+                        MaterialPageRoute(builder: (context) => SignInScreen()),
                       );
                     },
                     child: const Text(
