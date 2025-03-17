@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:flutter_switch/flutter_switch.dart';
 
 class OwnerRegistrationPage extends StatefulWidget {
   final String username;
@@ -19,6 +20,26 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
   final _addressController = TextEditingController();
   File? _image;
 
+  // Parking Input fields controllers
+  final _gpsCoordinateController = TextEditingController();
+  final _lengthController = TextEditingController();
+  final _widthController = TextEditingController();
+  final _totalSpacesController = TextEditingController();
+  String? _selectedPlotType;
+
+  // Time for Working Hours and Peak Hours, default value set to null.
+  TimeOfDay? _workingHoursFrom;
+  TimeOfDay? _workingHoursTo;
+  TimeOfDay? _peakHoursFrom;
+  TimeOfDay? _peakHoursTo;
+
+  bool _shelterIncluded = false;
+  bool _undergroundParking = false;
+  bool _evCharging = false;
+  bool _cctvIncluded = false;
+  bool _securityGuards = false;
+  bool _restroomAvailability = false;
+
   final List<String> idProofs = [
     'Aadhar Card',
     'Passport',
@@ -32,6 +53,13 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
     'Perpendicular Parking Slots',
     'Diagonal/Angled Slots',
     'Stack Parking Slots'
+  ];
+
+  List<String> plotTypes = [
+    'Open Lot',
+    'Covered Garage',
+    'Street Parking',
+    'Private Driveway'
   ];
 
   Future<void> _pickImage(ImageSource source) async {
@@ -101,6 +129,33 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
         );
       },
     );
+  }
+
+  Future<void> _selectTime(
+      BuildContext context, String whichTime) async {
+    final TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (pickedTime != null) {
+      setState(() {
+        switch (whichTime) {
+          case 'workingFrom':
+            _workingHoursFrom = pickedTime;
+            break;
+          case 'workingTo':
+            _workingHoursTo = pickedTime;
+            break;
+          case 'peakFrom':
+            _peakHoursFrom = pickedTime;
+            break;
+          case 'peakTo':
+            _peakHoursTo = pickedTime;
+            break;
+        }
+      });
+    }
   }
 
   @override
@@ -418,7 +473,180 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                 ),
                 SizedBox(height: 16),
 
-                // Submit Button
+                // **************************** START INPUT FIELDS FROM PREVIOUS RESPONSE ****************************
+                // GPS Coordinate
+                TextFormField(
+                  controller: _gpsCoordinateController,
+                  decoration: InputDecoration(
+                    hintText: "GPS Coordinate (Optional)",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[50],
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Working Hours
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildTimeSelector(
+                          "From", _workingHoursFrom, () {
+                        _selectTime(context, 'workingFrom');
+                      }),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text("To"),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildTimeSelector(
+                          "To", _workingHoursTo, () {
+                        _selectTime(context, 'workingTo');
+                      }),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Peak Hours
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildTimeSelector(
+                          "From", _peakHoursFrom, () {
+                        _selectTime(context, 'peakFrom');
+                      }),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text("To"),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildTimeSelector(
+                          "To", _peakHoursTo, () {
+                        _selectTime(context, 'peakTo');
+                      }),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Length and Width of Plot
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _lengthController,
+                        decoration: InputDecoration(
+                          hintText: "Length of the Plot",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[50],
+                          contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 16.0),
+                        ),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _widthController,
+                        decoration: InputDecoration(
+                          hintText: "Width of the Plot",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[50],
+                          contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 16.0),
+                        ),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Total Number of Parking Spaces
+                TextFormField(
+                  controller: _totalSpacesController,
+                  decoration: InputDecoration(
+                    hintText: "Total Number of Parking Spaces",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[50],
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 16),
+                // **************************** END INPUT FIELDS FROM PREVIOUS RESPONSE ****************************
+
+                // Plot Type Dropdown
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: DropdownButtonFormField<String>(
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        hintText: "Plot Type",
+                      ),
+                      value: _selectedPlotType,
+                      items: plotTypes.map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedPlotType = value;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Switch Tiles
+                _buildSwitchTile("Shelter Included", _shelterIncluded, (value) {
+                  setState(() => _shelterIncluded = value);
+                }),
+                _buildSwitchTile("Underground Parking", _undergroundParking, (value) {
+                  setState(() => _undergroundParking = value);
+                }),
+                _buildSwitchTile("EV Charging", _evCharging, (value) {
+                  setState(() => _evCharging = value);
+                }),
+                _buildSwitchTile("CCTV Included", _cctvIncluded, (value) {
+                  setState(() => _cctvIncluded = value);
+                }),
+                _buildSwitchTile("Security Guards", _securityGuards, (value) {
+                  setState(() => _securityGuards = value);
+                }),
+                _buildSwitchTile("Restroom Availability", _restroomAvailability, (value) {
+                  setState(() => _restroomAvailability = value);
+                }),
+
+                const SizedBox(height: 16),
+
+                /// Submit Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -435,8 +663,9 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12.0),
                       ),
-                      elevation: 0,
-                      shadowColor: Colors.transparent,
+                      elevation: 0, // Remove shadow
+                      shadowColor: Colors.transparent, // remove shadow
+
                     ),
                     child: const Text(
                       "Submit",
@@ -458,10 +687,66 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
     );
   }
 
+  Widget _buildTimeSelector(String label, TimeOfDay? selectedTime, Function() onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        decoration: BoxDecoration(
+          color: Colors.grey[50],
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(label),
+            Text(
+              selectedTime == null
+                  ? "Select Time"
+                  : selectedTime.format(context), //format TimeOfDay to a string.
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Icon(Icons.access_time),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSwitchTile(String title, bool value, ValueChanged<bool> onChanged) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(title),
+          FlutterSwitch(
+            width: 50.0,
+            height: 25.0,
+            valueFontSize: 12.0,
+            toggleSize: 20.0,
+            value: value,
+            borderRadius: 30.0,
+            padding: 2.0,
+            activeColor: Colors.green,
+            inactiveColor: Colors.grey,
+            onToggle: onChanged,
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _idNumberController.dispose();
     _addressController.dispose();
+
+    _gpsCoordinateController.dispose();
+    _lengthController.dispose();
+    _widthController.dispose();
+    _totalSpacesController.dispose();
+
     super.dispose();
   }
 }
