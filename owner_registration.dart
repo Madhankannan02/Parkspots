@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
 
 class OwnerRegistrationPage extends StatefulWidget {
   final String username;
@@ -108,8 +106,16 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
   @override
   void initState() {
     super.initState();
+    // DO NOT precacheImage HERE
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Precache the image here
     precacheImage(AssetImage('assets/default_dp.png'), context);
   }
+
 
   @override
   Widget build(BuildContext context) {
