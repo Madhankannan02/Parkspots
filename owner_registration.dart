@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:geocoding/geocoding.dart'; // For converting coordinates to address
 
 class OwnerRegistrationPage extends StatefulWidget {
   final String username;
@@ -75,7 +75,8 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
     );
   }
 
-  void _showBottomSheet(List<String> options, String title, Function(String) onSelect) {
+  void _showBottomSheet(
+      List<String> options, String title, Function(String) onSelect) {
     showModalBottomSheet(
       context: context,
       shape: RoundedRectangleBorder(
@@ -87,7 +88,8 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(title,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               Divider(),
               ...options.map((option) => ListTile(
                 title: Text(option),
@@ -103,73 +105,11 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
     );
   }
 
-  Future<void> _getCurrentLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    // Test if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Location services are disabled. Please enable the services')));
-      return;
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        // Permissions are denied, next time stay the denied
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text(
-                'Location permissions are denied')));
-        return;
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      // Permissions are denied forever, handle appropriately.
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text(
-              'Location permissions are permanently denied, we cannot request permissions.')));
-      Geolocator.openAppSettings();
-      return;
-    }
-    Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-
-    // Convert coordinates to address
-    List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
-    if (placemarks.isNotEmpty) {
-      Placemark place = placemarks[0];
-      setState(() {
-        _addressController.text = "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
-      });
-    } else {
-      setState(() {
-        _addressController.text = "No address found for these coordinates.";
-      });
-    }
-
-  }
-
-
   @override
   void initState() {
     super.initState();
-    // DO NOT precacheImage HERE
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Precache the image here
     precacheImage(AssetImage('assets/default_dp.png'), context);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -182,21 +122,25 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Back Button
                 GestureDetector(
                   onTap: () {
                     Navigator.pop(context);
                   },
                   child: Container(
-                    width: 43.95,
+                    width: 44,
                     height: 40,
                     decoration: BoxDecoration(
                       color: const Color(0xFFFAFAFA),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
+                    child: const Icon(Icons.arrow_back_ios_new,
+                        color: Colors.black),
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
+
+                // Title and Subtitle
                 Text(
                   "Register Your Parking Space",
                   style: TextStyle(
@@ -206,7 +150,7 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                     color: Colors.black,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Text(
                   "List your parking lot and start earning today!",
                   style: TextStyle(
@@ -216,7 +160,9 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                     color: Color(0xFF718096),
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
+
+                // Profile Image
                 Center(
                   child: GestureDetector(
                     onTap: () {
@@ -233,7 +179,7 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                 ),
                 SizedBox(height: 16),
 
-                /// Personal Information Section
+                // Personal Information Section
                 Text(
                   "Personal Information",
                   style: TextStyle(
@@ -243,6 +189,8 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                   ),
                 ),
                 SizedBox(height: 8),
+
+                // Full Name
                 SizedBox(
                   height: 56,
                   child: TextFormField(
@@ -250,15 +198,15 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                       hintText: "Full Name",
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.0),
-                        borderSide: BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFFE2E8F0)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.0),
-                        borderSide: BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFFE2E8F0)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.0),
-                        borderSide: BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFFE2E8F0)),
                       ),
                       contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
                     ),
@@ -266,6 +214,8 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                   ),
                 ),
                 SizedBox(height: 10),
+
+                // Email
                 SizedBox(
                   height: 56,
                   child: TextFormField(
@@ -273,15 +223,15 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                       hintText: "Email",
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.0),
-                        borderSide: BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFFE2E8F0)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.0),
-                        borderSide: BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFFE2E8F0)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.0),
-                        borderSide: BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFFE2E8F0)),
                       ),
                       contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
                     ),
@@ -289,6 +239,8 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                   ),
                 ),
                 SizedBox(height: 10),
+
+                // Phone Number
                 SizedBox(
                   height: 56,
                   child: TextFormField(
@@ -296,15 +248,15 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                       hintText: "Phone Number",
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.0),
-                        borderSide: BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFFE2E8F0)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.0),
-                        borderSide: BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFFE2E8F0)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.0),
-                        borderSide: BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFFE2E8F0)),
                       ),
                       contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
                     ),
@@ -312,36 +264,42 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                 ),
                 SizedBox(height: 8),
 
-                /// ID Proof Section
+                // ID Proof Section
                 Row(
                   children: [
+                    // ID Proof Dropdown
                     Expanded(
                       child: SizedBox(
                         height: 56,
                         child: ElevatedButton(
-                          onPressed: () => _showBottomSheet(idProofs, "Select ID Proof", (value) {
+                          onPressed: () => _showBottomSheet(
+                              idProofs, "Select ID Proof", (value) {
                             setState(() => selectedIdProof = value);
                           }),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF49454F).withOpacity(0.04),
+                            backgroundColor:
+                            Color(0xFF49454F).withOpacity(0.04),
                             padding: EdgeInsets.zero,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16.0),
-                              side: BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
+                              side: BorderSide(color: Color(0xFFE2E8F0)),
                             ),
-                            elevation: 0, // Remove shadow
-                            shadowColor: Colors.transparent, // remove shadow
+                            elevation: 0,
+                            shadowColor: Colors.transparent,
                           ),
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                            padding:
+                            const EdgeInsets.symmetric(horizontal: 16.0),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
                                   selectedIdProof ?? "ID Proof",
-                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500), // Black text
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w500),
                                 ),
-                                Icon(Icons.expand_more, color: Colors.black), // Accordion Icon
+                                Icon(Icons.expand_more, color: Colors.black),
                               ],
                             ),
                           ),
@@ -349,8 +307,10 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                       ),
                     ),
                     SizedBox(width: 10),
+
+                    // ID Number Input
                     Expanded(
-                      flex: 2, // Make this input bigger
+                      flex: 2,
                       child: SizedBox(
                         height: 56,
                         child: TextFormField(
@@ -359,17 +319,18 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                             hintText: "ID Number",
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(16.0),
-                              borderSide: BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
+                              borderSide: BorderSide(color: Color(0xFFE2E8F0)),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(16.0),
-                              borderSide: BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
+                              borderSide: BorderSide(color: Color(0xFFE2E8F0)),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(16.0),
-                              borderSide: BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
+                              borderSide: BorderSide(color: Color(0xFFE2E8F0)),
                             ),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                            contentPadding:
+                            EdgeInsets.symmetric(horizontal: 16.0),
                           ),
                         ),
                       ),
@@ -378,12 +339,13 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                 ),
                 SizedBox(height: 12),
 
-                /// Parking Slot Selection
+                // Parking Slot Selection
                 SizedBox(
                   height: 56,
-                  width: double.infinity, // Take up full screen width
+                  width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () => _showBottomSheet(parkingSlots, "Select Parking Slot Layout", (value) {
+                    onPressed: () => _showBottomSheet(
+                        parkingSlots, "Select Parking Slot Layout", (value) {
                       setState(() => selectedParkingSlot = value);
                     }),
                     style: ElevatedButton.styleFrom(
@@ -391,11 +353,10 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                       padding: EdgeInsets.zero,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16.0),
-                        side: BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
+                        side: BorderSide(color: Color(0xFFE2E8F0)),
                       ),
-                      elevation: 0, // Remove shadow
-                      shadowColor: Colors.transparent, // remove shadow
-
+                      elevation: 0,
+                      shadowColor: Colors.transparent,
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -404,9 +365,10 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                         children: [
                           Text(
                             selectedParkingSlot ?? "Select Parking Slot Layout",
-                            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500), // Black text
+                            style: TextStyle(
+                                color: Colors.black, fontWeight: FontWeight.w500),
                           ),
-                          Icon(Icons.expand_more, color: Colors.black), // Accordion Icon
+                          Icon(Icons.expand_more, color: Colors.black),
                         ],
                       ),
                     ),
@@ -414,7 +376,7 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                 ),
                 SizedBox(height: 16),
 
-                /// Address Section
+                // Address Section
                 Text(
                   "Parking Lot Information",
                   style: TextStyle(
@@ -424,6 +386,8 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                   ),
                 ),
                 SizedBox(height: 8),
+
+                // Address Input
                 SizedBox(
                   height: 56,
                   child: TextFormField(
@@ -432,28 +396,23 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                       hintText: "Enter Address",
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.0),
-                        borderSide: BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFFE2E8F0)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.0),
-                        borderSide: BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFFE2E8F0)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.0),
-                        borderSide: BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFFE2E8F0)),
                       ),
                       contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
                     ),
                   ),
                 ),
-                SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: _getCurrentLocation,
-                  child: Text("Select from Location"),
-                ),
                 SizedBox(height: 16),
 
-                /// Submit Button
+                // Submit Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -470,9 +429,8 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12.0),
                       ),
-                      elevation: 0, // Remove shadow
-                      shadowColor: Colors.transparent, // remove shadow
-
+                      elevation: 0,
+                      shadowColor: Colors.transparent,
                     ),
                     child: const Text(
                       "Submit",
