@@ -1,0 +1,189 @@
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'owner_registration.dart'; // Importing the owner registration screen
+
+class UploadMediaScreen extends StatefulWidget {
+  const UploadMediaScreen({Key? key}) : super(key: key);
+
+  @override
+  State<UploadMediaScreen> createState() => _UploadMediaScreenState();
+}
+
+class _UploadMediaScreenState extends State<UploadMediaScreen> {
+  List<File> _selectedFiles = [];
+  final ImagePicker _picker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedFiles.add(File("fake_path/img.jpg"));
+    _selectedFiles.add(File("fake_path/video.mp4"));
+  }
+
+  Future<void> _pickFile(ImageSource source) async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(source: source);
+      if (pickedFile != null) {
+        setState(() {
+          _selectedFiles.add(File(pickedFile.path));
+        });
+      }
+    } catch (e) {
+      print("Error picking file: $e");
+    }
+  }
+
+  void _removeFile(int index) {
+    setState(() {
+      _selectedFiles.removeAt(index);
+    });
+  }
+
+  void _showSelectionDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Choose Image Source"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _pickFile(ImageSource.gallery);
+              },
+              child: const Text("Choose from Gallery"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _pickFile(ImageSource.camera);
+              },
+              child: const Text("Open Camera"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 24.0),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: InkWell(
+                    onTap: () => Navigator.pop(context),
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      padding: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.grey[200],
+                      ),
+                      child: const Icon(Icons.arrow_back, color: Colors.black),
+                    ),
+                  ),
+                ),
+              ),
+              const Text(
+                "Upload media of your plot",
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF1A202C)),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                "Upload images and videos to give drivers a clear view of your parking lot.",
+                style: TextStyle(color: Color(0xFF718096), fontSize: 14),
+              ),
+              const SizedBox(height: 24),
+              GestureDetector(
+                onTap: _showSelectionDialog,
+                child: Container(
+                  height: 150,
+                  decoration: BoxDecoration(
+                    border: Border.all(width: 1.5, color: Colors.black),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.cloud_upload_outlined, size: 40, color: Colors.grey[500]),
+                        Text("Select file", style: TextStyle(color: Colors.grey[500])),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Center(child: Text("or", style: TextStyle(color: Colors.grey[600]))),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 61,
+                child: ElevatedButton.icon(
+                  onPressed: () => _pickFile(ImageSource.camera),
+                  icon: const Icon(Icons.camera_alt, color: Colors.black),
+                  label: const Text("Open Camera & Take Photo"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFF7FAFC),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              if (_selectedFiles.isNotEmpty)
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _selectedFiles.length,
+                  itemBuilder: (context, index) {
+                    String fileName = _selectedFiles[index].path.split('/').last;
+                    return Container(
+                      margin: const EdgeInsets.symmetric(vertical: 4.0),
+                      decoration: BoxDecoration(color: const Color(0xFFF7FAFC), borderRadius: BorderRadius.circular(12)),
+                      child: ListTile(
+                        title: Text(fileName),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => _removeFile(index),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              const Spacer(),
+              SizedBox(
+                width: double.infinity,
+                height: 61,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => OwnerRegistrationPage()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text("Continue"),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
