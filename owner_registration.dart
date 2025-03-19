@@ -2,34 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:rich_text_controller/rich_text_controller.dart';
+import 'upload_media.dart';
 
 class OwnerRegistrationPage extends StatefulWidget {
   final String username;
   final String email;
 
-  OwnerRegistrationPage({this.username = '', this.email = ''});
+  const OwnerRegistrationPage({Key? key, this.username = '', this.email = ''}) : super(key: key);
 
   @override
   _OwnerRegistrationPageState createState() => _OwnerRegistrationPageState();
 }
 
 class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
+  // General Information
   String? selectedIdProof;
   String? selectedParkingSlot;
-  final _idNumberController = TextEditingController();
-  final _addressController = TextEditingController();
+  final TextEditingController _idNumberController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
   File? _image;
 
   // Pricing Details Controllers
-  final _hourlyPriceController = TextEditingController();
-  final _peakHoursPriceController = TextEditingController();
-  final _dailyPriceController = TextEditingController();
+  final TextEditingController _hourlyPriceController = TextEditingController();
+  final TextEditingController _peakHoursPriceController = TextEditingController();
+  final TextEditingController _dailyPriceController = TextEditingController();
 
   // Parking Input fields controllers
-  final _gpsCoordinateController = TextEditingController();
-  final _lengthController = TextEditingController();
-  final _widthController = TextEditingController();
-  final _totalSpacesController = TextEditingController();
+  final TextEditingController _gpsCoordinateController = TextEditingController();
+  final TextEditingController _lengthController = TextEditingController();
+  final TextEditingController _widthController = TextEditingController();
+  final TextEditingController _totalSpacesController = TextEditingController();
   String? _selectedPlotType;
 
   // Time Selection
@@ -38,6 +41,7 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
   TimeOfDay? _peakHoursFrom;
   TimeOfDay? _peakHoursTo;
 
+  // Features
   bool _shelterIncluded = false;
   bool _undergroundParking = false;
   bool _evCharging = false;
@@ -45,6 +49,7 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
   bool _securityGuards = false;
   bool _restroomAvailability = false;
 
+  // Agreements
   bool _confirmOwnership = false;
   bool _agreeTerms = false;
 
@@ -61,7 +66,7 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
     'Diagonal/Angled Slots',
     'Stack Parking Slots'
   ];
-  List<String> plotTypes = [
+  final List<String> plotTypes = [
     'Open Lot',
     'Covered Garage',
     'Street Parking',
@@ -75,22 +80,27 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
     });
   }
 
-  // Helper Functions
   void _showImageSourceDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Choose Image Source"),
+          title: const Text("Choose Image Source"),
           actions: [
-            TextButton(onPressed: () {
-              Navigator.pop(context);
-              _pickImage(ImageSource.camera);
-            }, child: Text("Camera")),
-            TextButton(onPressed: () {
-              Navigator.pop(context);
-              _pickImage(ImageSource.gallery);
-            }, child: Text("Gallery")),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _pickImage(ImageSource.camera);
+              },
+              child: const Text("Camera"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _pickImage(ImageSource.gallery);
+              },
+              child: const Text("Gallery"),
+            ),
           ],
         );
       },
@@ -103,18 +113,25 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
       builder: (BuildContext context) {
         return Container(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              Divider(),
-              ...options.map((option) => ListTile(
-                title: Text(option),
-                onTap: () {
+              Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Divider(),
+              ...options.map((option) => TextButton(
+                onPressed: () {
                   onSelect(option);
                   Navigator.pop(context);
                 },
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    option,
+                    style: const TextStyle(color: Colors.black),
+                    textAlign: TextAlign.left,
+                  ),
+                ),
               )),
             ],
           ),
@@ -152,18 +169,25 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
       builder: (BuildContext context) {
         return Container(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("Select Plot Type", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              Divider(),
-              ...plotTypes.map((option) => ListTile(
-                title: Text(option),
-                onTap: () {
+              const Text("Select Plot Type", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Divider(),
+              ...plotTypes.map((option) => TextButton(
+                onPressed: () {
                   onSelect(option);
                   Navigator.pop(context);
                 },
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    option,
+                    style: const TextStyle(color: Colors.black),
+                    textAlign: TextAlign.left,
+                  ),
+                ),
               )),
             ],
           ),
@@ -174,7 +198,7 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
 
   // Reusable Widgets
   Widget _buildTimeButton(BuildContext context, String label, TimeOfDay? selectedTime, String whichTime) {
-    return GestureDetector(
+    return InkWell(
       onTap: () {
         _selectTime(context, whichTime);
       },
@@ -182,9 +206,9 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
         width: 80,
         height: 40,
         decoration: BoxDecoration(
-          color: Color(0xFF49454F).withOpacity(0.04),
+          color: const Color(0xFF49454F).withOpacity(0.04),
           borderRadius: BorderRadius.circular(16.0),
-          border: Border.all(color: Color(0xFFE2E8F0)),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
         ),
         child: Center(
           child: Text(selectedTime == null ? label : selectedTime.format(context)),
@@ -199,7 +223,7 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title, style: TextStyle(color: Color(0xFF718096), fontSize: 14, fontFamily: 'HelveticaNeue', fontWeight: FontWeight.normal)),
+          Text(title, style: const TextStyle(color: Color(0xFF718096), fontSize: 14, fontFamily: 'HelveticaNeue', fontWeight: FontWeight.normal)),
           FlutterSwitch(
             width: 50.0,
             height: 25.0,
@@ -221,7 +245,7 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: TextStyle(color: Color(0xFF718096), fontSize: 14, fontFamily: 'HelveticaNeue', fontWeight: FontWeight.normal)),
+        Text(label, style: const TextStyle(color: Color(0xFF718096), fontSize: 14, fontFamily: 'HelveticaNeue', fontWeight: FontWeight.normal)),
         Container(
           width: 100,
           child: TextFormField(
@@ -229,28 +253,15 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
               hintText: "(in Rs)",
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-              contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
             ),
           ),
         ),
       ],
     );
-  }
-
-
-  // Lifecycle Methods
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    precacheImage(AssetImage('assets/default_dp.png'), context);
   }
 
   @override
@@ -259,13 +270,13 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 17.0), // 17px side margins
+          padding: const EdgeInsets.symmetric(horizontal: 17.0),
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Back Button
-                GestureDetector(
+                InkWell(
                   onTap: () => Navigator.pop(context),
                   child: Container(
                     width: 44,
@@ -277,74 +288,74 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                     child: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
                   ),
                 ),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
 
                 // Title and Subtitle
-                Text("Register Your Parking Space", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, fontFamily: 'HelveticaNeue', color: Colors.black)),
-                SizedBox(height: 8),
-                Text("List your parking lot and start earning today!", style: TextStyle(fontSize: 18, fontWeight: FontWeight.normal, fontFamily: 'HelveticaNeue', color: Color(0xFF718096))),
-                SizedBox(height: 24),
+                const Text("Register Your Parking Space", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, fontFamily: 'HelveticaNeue', color: Colors.black)),
+                const SizedBox(height: 8),
+                const Text("List your parking lot and start earning today!", style: TextStyle(fontSize: 18, fontWeight: FontWeight.normal, fontFamily: 'HelveticaNeue', color: Color(0xFF718096))),
+                const SizedBox(height: 24),
 
                 // Profile Image
                 Center(
-                  child: GestureDetector(
+                  child: InkWell(
                     onTap: () => _showImageSourceDialog(),
                     child: CircleAvatar(
                       radius: 40,
                       backgroundColor: Colors.grey[300],
-                      backgroundImage: _image != null ? FileImage(_image!) : AssetImage('assets/default_dp.png') as ImageProvider,
+                      backgroundImage: _image != null ? FileImage(_image!) : const AssetImage('assets/default_dp.png') as ImageProvider,
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Personal Information Section
-                Text("Personal Information", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, fontFamily: 'HelveticaNeue')),
-                SizedBox(height: 8),
+                const Text("Personal Information", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, fontFamily: 'HelveticaNeue')),
+                const SizedBox(height: 8),
 
                 SizedBox(
                   height: 56,
                   child: TextFormField(
                     decoration: InputDecoration(
                       hintText: "Full Name",
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
                     ),
                     controller: TextEditingController(text: widget.username),
                   ),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
 
                 SizedBox(
                   height: 56,
                   child: TextFormField(
                     decoration: InputDecoration(
                       hintText: "Email",
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
                     ),
                     controller: TextEditingController(text: widget.email),
                   ),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
 
                 SizedBox(
                   height: 56,
                   child: TextFormField(
                     decoration: InputDecoration(
                       hintText: "Phone Number",
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
                     ),
                   ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
 
                 // ID Proof Section
                 Row(
@@ -358,9 +369,9 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                             setState(() => selectedIdProof = value);
                           }),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF49454F).withOpacity(0.04),
+                            backgroundColor: const Color(0xFF49454F).withOpacity(0.04),
                             padding: EdgeInsets.zero,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0), side: BorderSide(color: Color(0xFFE2E8F0))),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0), side: const BorderSide(color: Color(0xFFE2E8F0))),
                             elevation: 0,
                             shadowColor: Colors.transparent,
                           ),
@@ -369,15 +380,15 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(selectedIdProof ?? "ID Proof", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
-                                Icon(Icons.expand_more, color: Colors.black),
+                                Text(selectedIdProof ?? "ID Proof", style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
+                                const Icon(Icons.expand_more, color: Colors.black),
                               ],
                             ),
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
 
                     // ID Number Input
                     Expanded(
@@ -388,17 +399,17 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                           controller: _idNumberController,
                           decoration: InputDecoration(
                             hintText: "ID Number",
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
                           ),
                         ),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
 
                 // Parking Slot Selection
                 SizedBox(
@@ -409,9 +420,9 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                       setState(() => selectedParkingSlot = value);
                     }),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF49454F).withOpacity(0.04),
+                      backgroundColor: const Color(0xFF49454F).withOpacity(0.04),
                       padding: EdgeInsets.zero,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0), side: BorderSide(color: Color(0xFFE2E8F0))),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0), side: const BorderSide(color: Color(0xFFE2E8F0))),
                       elevation: 0,
                       shadowColor: Colors.transparent,
                     ),
@@ -420,18 +431,18 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(selectedParkingSlot ?? "Select Parking Slot Layout", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
-                          Icon(Icons.expand_more, color: Colors.black),
+                          Text(selectedParkingSlot ?? "Select Parking Slot Layout", style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
+                          const Icon(Icons.expand_more, color: Colors.black),
                         ],
                       ),
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Address Section
-                Text("Parking Lot Information", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, fontFamily: 'HelveticaNeue')),
-                SizedBox(height: 8),
+                const Text("Parking Lot Information", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, fontFamily: 'HelveticaNeue')),
+                const SizedBox(height: 8),
 
                 // Address Input
                 SizedBox(
@@ -440,14 +451,14 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                     controller: _addressController,
                     decoration: InputDecoration(
                       hintText: "Enter Address",
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Parking Details
                 SizedBox(
@@ -456,10 +467,10 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                     controller: _gpsCoordinateController,
                     decoration: InputDecoration(
                       hintText: "GPS Coordinate (Optional)",
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
                     ),
                   ),
                 ),
@@ -471,13 +482,13 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Working Hours", style: TextStyle(color: Color(0xFF718096), fontSize: 14, fontFamily: 'HelveticaNeue', fontWeight: FontWeight.normal)),
+                      const Text("Working Hours", style: TextStyle(color: Color(0xFF718096), fontSize: 14, fontFamily: 'HelveticaNeue', fontWeight: FontWeight.normal)),
                       Row(
                         children: [
                           _buildTimeButton(context, "From", _workingHoursFrom, "workingFrom"),
-                          SizedBox(width: 8),
-                          Text("–"), // En Dash
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
+                          const Text("–"), // En Dash
+                          const SizedBox(width: 8),
                           _buildTimeButton(context, "To", _workingHoursTo, "workingTo"),
                         ],
                       ),
@@ -492,13 +503,13 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Peak Hours", style: TextStyle(color: Color(0xFF718096), fontSize: 14, fontFamily: 'HelveticaNeue', fontWeight: FontWeight.normal)),
+                      const Text("Peak Hours", style: TextStyle(color: Color(0xFF718096), fontSize: 14, fontFamily: 'HelveticaNeue', fontWeight: FontWeight.normal)),
                       Row(
                         children: [
                           _buildTimeButton(context, "From", _peakHoursFrom, "peakFrom"),
-                          SizedBox(width: 8),
-                          Text("–"), // En Dash
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
+                          const Text("–"), // En Dash
+                          const SizedBox(width: 8),
                           _buildTimeButton(context, "To", _peakHoursTo, "workingTo"),
                         ],
                       ),
@@ -517,10 +528,10 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                           controller: _lengthController,
                           decoration: InputDecoration(
                             hintText: "Length of the Plot",
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
                           ),
                           keyboardType: TextInputType.number,
                         ),
@@ -534,10 +545,10 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                           controller: _widthController,
                           decoration: InputDecoration(
                             hintText: "Width of the Plot",
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
                           ),
                           keyboardType: TextInputType.number,
                         ),
@@ -554,10 +565,10 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                     controller: _totalSpacesController,
                     decoration: InputDecoration(
                       hintText: "Total Number of Parking Spaces",
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
                     ),
                     keyboardType: TextInputType.number,
                   ),
@@ -572,16 +583,16 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                   child: Container(
                     height: 56,
                     decoration: BoxDecoration(
-                      color: Color(0xFF49454F).withOpacity(0.04),
+                      color: const Color(0xFF49454F).withOpacity(0.04),
                       borderRadius: BorderRadius.circular(16.0),
-                      border: Border.all(color: Color(0xFFE2E8F0)),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(_selectedPlotType ?? "Plot Type", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
-                        Icon(Icons.expand_more, color: Colors.black),
+                        Text(_selectedPlotType ?? "Plot Type", style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
+                        const Icon(Icons.expand_more, color: Colors.black),
                       ],
                     ),
                   ),
@@ -599,65 +610,70 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                 // Pricing Details
                 Padding(
                   padding: const EdgeInsets.only(top: 24.0),
-                  child: Text("Pricing Details", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, fontFamily: 'HelveticaNeue')),
+                  child: const Text("Pricing Details", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, fontFamily: 'HelveticaNeue')),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 _buildPriceInput("Hourly Price", _hourlyPriceController),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 _buildPriceInput("Peak Hours Price", _peakHoursPriceController),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 _buildPriceInput("Daily Price", _dailyPriceController),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-                // Upload Media
+                // Upload Media - Now Navigates to UploadMediaScreen
                 GestureDetector(
                   onTap: () {
-                    // TODO: Media upload Functionality
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => UploadMediaScreen()));
                   },
                   child: Container(
-                    height: 56, // Set height to 56px
-
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("Upload Media", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, fontFamily: 'HelveticaNeue')),
-                          Icon(Icons.arrow_forward_ios),
-                        ],
-                      ),
+                    height: 56,
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: const [
+                        Text("Upload Media",
+                            style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'HelveticaNeue')),
+                        Icon(Icons.arrow_forward_ios),
+                      ],
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-                // Payment Options
+                // Payment Options - Modified to match Upload Media Button
                 GestureDetector(
                   onTap: () {
-                    // TODO: Payment option functionality
+                    // TODO: Implement Payment Options functionality here
                   },
                   child: Container(
-                    height: 56, // Set height to 56px
-
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("Payment Options", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, fontFamily: 'HelveticaNeue')),
-                          Icon(Icons.arrow_forward_ios),
-                        ],
-                      ),
+                    height: 56,
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: const [
+                        Text("Payment Options",
+                            style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'HelveticaNeue')),
+                        Icon(Icons.arrow_forward_ios),
+                      ],
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 Padding(
                   padding: const EdgeInsets.only(bottom: 15.0),
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start, // Align Checkbox and Text to the top
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Checkbox(
                         value: _confirmOwnership,
@@ -665,11 +681,11 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                         checkColor: Colors.white,
                         fillColor: MaterialStateColor.resolveWith((states) => states.contains(MaterialState.selected) ? Colors.black : Colors.transparent),
                       ),
-                      SizedBox(width: 16),
+                      const SizedBox(width: 16),
                       Expanded(
                         child: RichText(
-                          text: TextSpan(
-                            style: TextStyle(color: Color(0xFF718096), fontSize: 14, fontFamily: 'HelveticaNeue', fontWeight: FontWeight.normal, height: 24/14),
+                          text: const TextSpan(
+                            style: TextStyle(color: Color(0xFF718096), fontSize: 14, fontFamily: 'HelveticaNeue', fontWeight: FontWeight.normal, height: 24 / 14),
                             children: <TextSpan>[
                               TextSpan(text: "I confirm that I am the rightful owner of "),
                               TextSpan(text: "this parking lot ", style: TextStyle(color: Color(0xFF1A202C), fontWeight: FontWeight.bold)),
@@ -687,7 +703,7 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 15.0),
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start, // Align Checkbox and Text to the top
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Checkbox(
                         value: _agreeTerms,
@@ -695,11 +711,11 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                         checkColor: Colors.white,
                         fillColor: MaterialStateColor.resolveWith((states) => states.contains(MaterialState.selected) ? Colors.black : Colors.transparent),
                       ),
-                      SizedBox(width: 16),
+                      const SizedBox(width: 16),
                       Expanded(
-                        child: Text.rich(
-                          TextSpan(
-                            style: TextStyle(color: Color(0xFF718096), fontSize: 14, fontFamily: 'HelveticaNeue', fontWeight: FontWeight.normal, height: 24/14),
+                        child: RichText(
+                          text: const TextSpan(
+                            style: TextStyle(color: Color(0xFF718096), fontSize: 14, fontFamily: 'HelveticaNeue', fontWeight: FontWeight.normal, height: 24 / 14),
                             children: <TextSpan>[
                               TextSpan(text: "I agree to the "),
                               TextSpan(text: "Terms and Conditions ", style: TextStyle(color: Color(0xFF1A202C), fontWeight: FontWeight.bold)),
@@ -712,7 +728,7 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                   ),
                 ),
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Submit Button
                 SizedBox(
@@ -720,7 +736,7 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                   child: ElevatedButton(
                     onPressed: () {
                       // TODO: Submit action
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Parking Registration Submitted!")));
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Parking Registration Submitted!")));
                       Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(
@@ -741,7 +757,7 @@ class _OwnerRegistrationPageState extends State<OwnerRegistrationPage> {
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
               ],
             ),
           ),
